@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block body %}
+    {{ add_ext_file('css/layout.css') }}
+
+    <header id="app-header">
+        {% block header %}
+            <h1 id="header-title">
+                {% if 'header_title' in globals() %}
+                    {{ header_title }}
+                {% else %}
+                    {{ conf.app_name }}
+                {% end %}
+            </h1>
+        {% end %}
+    </header>
+
+    {% block free_content %}
+        <section id="content" class="scrolling-panel">
+            {% block content %}
+                {% if 'content' in globals() %}
+                    {% if raw_content %}
+                        {% raw content %}
+                    {% else %}
+                        {{ content }}
+                    {% end %}
+                {% end %}
+            {% end %}
+        </section>
+    {% end %}
+{% end %}

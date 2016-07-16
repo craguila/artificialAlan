@@ -1,0 +1,51 @@
+{% from urllib.parse import urlunparse %}
+{% from conf import app_name, login_path%}
+
+<section id="home-content" class="box">
+    <h1 class="box-ulined-title">{{ app_name }}</h1>
+    <p>
+        {{ app_name }} es una plataforma para la interacción
+        en tiempo real dentro de las salas. Nuestra misión
+        es apoyar al desarrollo de clases activas utilizando
+        los teléfonos móviles de los alumnos.
+    </p>
+    <form action="{{ login_path }}" method="GET">
+        <div id="home-remember-me">
+            <input type="checkbox" id="remember"
+                   name="remember" value="True">
+            <label for="remember">Recordarme</label>
+        </div>
+        <input type="submit" id="google-login-button"
+               value="Ingresar con Google">
+        {% if hasattr(handler, 'room_code') and \
+              handler.room_code %}
+            <input type="hidden" name="room_code"
+                   value="{{ handler.room_code }}">
+        {% end %}
+    </form>
+</section>
+
+<footer id='home-footer'>
+    <p>
+        Los íconos de
+  <a href="https://github.com/google/material-design-icons">
+        Google Material Design Icons</a> son distribuídos
+        bajo la licencia
+      <a href="http://creativecommons.org/licenses/by/4.0/">
+        Attribution 4.0 International</a> y algunos pueden
+        haber sido modificados.
+    </p>
+    <p>
+        Los íconos de
+        <a href="http://www.w3.org/html/logo/">W3C HTML5
+        Logo</a> son distribuídos bajo la licencia
+      <a href="http://creativecommons.org/licenses/by/3.0/">
+        Attribution 3.0 License</a> y algunos pueden haber
+        sido modificados.
+    </p>
+</footer>
+
+<script
+    src="{{ make_static_url('home.js') }}"
+    type="text/javascript">
+</script>

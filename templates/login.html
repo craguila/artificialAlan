@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block body %}
+    <script>
+        localStorage.setItem('sessionToken', '{{ token }}');
+        document.location.replace(
+            "/{{ handler.state['room_code'] \
+                 if handler.state['room_code'] else '' }}");
+    </script>
+{% end %}

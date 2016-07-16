@@ -1,0 +1,77 @@
+// COPYRIGHT (c) 2016 Cristóbal Ganter
+//
+// GNU AFFERO GENERAL PUBLIC LICENSE
+//    Version 3, 19 November 2007
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+@import 'bourbon_files/bourbon';
+@import 'constants';
+
+// scss-lint:disable IdSelector
+
+#app-header {
+  @include align-items(center);
+  @include display(flex);
+  @include justify-content(space-between);
+  @include linear-gradient($c-control-face-light,
+                           $c-control-face-dark);
+  @include position(fixed, 0 0 auto 0);
+
+  border-bottom: 1px solid $c-control-border;
+  box-shadow: 0 -.9rem .3rem 1rem $c-header-shadow;
+  height: $header-height;
+  padding-right: .5rem;
+  z-index: $zi-header;
+}
+
+#header-title {
+  @include flex-grow(1);
+  font-size: 1rem;
+  margin: 0;
+  text-align: center;
+}
+
+.panel {
+  background-color: transparent;
+  display: none;
+  z-index: $zi-panels;
+}
+
+.panel:not(:first-of-type) {
+  display: none;
+}
+
+.panel-title {
+  background-color: $c-panel-title;
+  color: $c-white-font;
+  font-size: $panel-title-font-size;
+  line-height: $panel-title-font-size;
+  margin: 0;
+  padding: $panel-title-padding;
+  width: 100%;
+}
+
+.scrolling-panel {
+  // scss-lint:disable PlaceholderInExtend
+  @extend .panel;
+  @include position(absolute, $header-height 0 null 0);
+}
+
+.fixed-panel {
+  // scss-lint:disable PlaceholderInExtend
+  @extend .panel;
+  @include position(fixed, $header-height 0 0 0);
+}

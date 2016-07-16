@@ -1,0 +1,99 @@
+// COPYRIGHT (c) 2016 Cristóbal Ganter
+//
+// GNU AFFERO GENERAL PUBLIC LICENSE
+//    Version 3, 19 November 2007
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Affero General Public License as published
+// by the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Affero General Public License for more details.
+//
+// You should have received a copy of the GNU Affero General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+@import "../../../static/scss/bourbon_files/bourbon";
+@import "../../../static/scss/_constants.scss";
+
+#presentation-box {
+    @include position(
+        absolute, $panel-title-height 0px 0px 0px);
+
+    .main-presentation-element {
+        @include position(absolute, 0px 0px 0px 0px);
+        border: none;
+        @include size(100%);
+        overflow: hidden;
+    }
+    .alt-presentation-element {
+        @include position(absolute);
+        z-index: $zi-panels +1;
+    }
+}
+
+
+#presentation-box-fullscreen {
+    @include transform-origin(center);
+    animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-name: blink;
+    @include position(
+        absolute, null 0px 0px null);
+    background: none;
+    border: none;
+    display: none;
+    @include size(2.5rem);
+    padding: 0rem;
+    margin: 1rem;
+    z-index: $zi-panels + 1;
+
+    path {
+        fill: $c-icon;
+    }
+}
+
+#presentation-box-unfullscreen {
+    @include transform-origin(center);
+    animation-duration: 60s;
+    animation-iteration-count: infinite;
+    animation-name: blink;
+    @include position(
+        absolute, null 0px 0px null);
+    background: none;
+    border: none;
+    display: none;
+    @include size(2.5rem);
+    padding: 0rem;
+    margin: 1rem;
+    z-index: $zi-panels + 1;
+
+    path {
+        fill: $c-icon;
+    }
+}
+
+@keyframes blink{
+    from{
+        @include transform(scale(1));
+    }
+    0.5% {
+        @include transform(scale(1.5));
+    }
+    1% {
+        @include transform(scale(1));
+    }
+    1.5% {
+        @include transform(scale(1.5));
+    }
+    2% {
+        @include transform(scale(1));
+    }
+    to {
+        @include transform(scale(1));
+    }
+}

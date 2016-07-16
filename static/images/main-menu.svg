@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="30"
+     height="30">
+     
+    <rect width="26" height="4" rx="2" ry="2" x="2" y="4"
+          style="fill:#414141;fill-opacity:1;stroke:none"/>
+          
+    <rect width="26" height="4" rx="2" ry="2" x="2" y="13"
+          style="fill:#414141;fill-opacity:1;stroke:none"/>
+          
+    <rect width="26" height="4" rx="2" ry="2" x="2" y="22"
+          style="fill:#414141;fill-opacity:1;stroke:none"/>
+</svg>
