@@ -1,4 +1,4 @@
-# COPYRIGHT (c) 2016 Cristóbal Ganter
+# COPYRIGHT (c) 2016 Cristóbal Águila
 #
 # GNU AFFERO GENERAL PUBLIC LICENSE
 #    Version 3, 19 November 2007
@@ -135,13 +135,25 @@ showAlternativesControl = (message) ->
     addNodeToPresentation alternativesResult, false
     showhide_button = document.querySelector('.toggle-button')
     showhide_button.addEventListener 'click', alternatives_results_toggleGraphs
-  alts_number = message.percentages.length
-  plot_init = new Array(alts_number+1).join('0').split('')
-  draw_plot plot_init
+  if message.percentages?
+    alts_number = message.percentages.length
+    plot_init = new Array(alts_number+1).join('0').split('')
+    draw_plot plot_init
   return
 
 endAlternatives = ->
+  g = document.querySelector "#graphs"
+  while (g.childElementCount > 0)
+    g.removeChild(g.lastChild)
   if active_panel == 'alternatives-control-panel'
+    showhide_button = document.querySelector('#showhide')
+    text = showhide_button.querySelector('span')
+    text.textContent = 'Mostrar Gráficos'
+    showhide_button.classList.remove('hide')
+    showhide_button.classList.add('show')
+    button = document.querySelector("#block")
+    textb = button.querySelector("span")
+    textb.textContent = "Bloquear Respuestas"
     switchToPanel 'remote-panel'
   else if active_panel == 'presentation-panel'
     results = document.querySelector(".alternatives.results")
@@ -156,12 +168,12 @@ showhide = ->
     text.textContent = 'Ocultar Gráficos'
     showhide_button.classList.remove('show')
     showhide_button.classList.add('hide')
-    #ws.sendJSON 'type': 'alternatives.results.show'
+    ws.sendJSON 'type': 'alternatives.results.show'
   else
     text.textContent = 'Mostrar Gráficos'
     showhide_button.classList.remove('hide')
     showhide_button.classList.add('show')
-    #ws.sendJSON 'type': 'toFrontend', 'content' : 'type':'alternatives.results.hide'
+    ws.sendJSON 'type': 'alternatives.results.hide'
 
 alternatives_results_showGraphs = ->
   if active_panel == 'presentation-panel'
@@ -174,6 +186,16 @@ alternatives_results_hideGraphs = ->
     panel = document.querySelector(".alternatives.results")
     panel.classList.add("closed")
     panel.classList.remove("opened")
+
+block_alternatives = ->
+  button = document.querySelector("#block")
+  text = button.querySelector("span")
+  if text.textContent == "Bloquear Respuestas"
+    text.textContent = "Desbloquear Respuestas"
+    ws.sendJSON 'type': 'alternatives.block', 'action': 'block'
+  else
+    text.textContent = "Bloquear Respuestas"
+    ws.sendJSON 'type': 'alternatives.block', 'action': 'unblock'
 
 
 alternatives_results_toggleGraphs = ->
@@ -194,6 +216,8 @@ showhide_button.addEventListener 'click', showhide
 showhide_button = document.getElementById('terminate')
 showhide_button.addEventListener 'click', terminate_alternatives
 
+block_button = document.getElementById('block')
+block_button.addEventListener 'click', block_alternatives
 
 ws.addMessageListener 'alternatives.results', (m) ->
   draw_plot svg, m.percentages for svg in document.querySelectorAll(".alternatives.plot")

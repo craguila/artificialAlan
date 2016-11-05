@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# COPYRIGHT (c) 2016 Felipe Condon
+# COPYRIGHT (c) 2016 Cristóbal Ganter
 #
 # GNU AFFERO GENERAL PUBLIC LICENSE
 #    Version 3, 19 November 2007
@@ -18,28 +18,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from tornado.gen import coroutine
+
 import src
 from src.wsclass import subscribe
-class AlterQuestionLockingPanel(
-        src.boiler_ui_module.BoilerUIModule):
-    id_ = 'alternatives-question-panel'
-    classes = {'scrolling-panel', 'student'}
-    name = 'Panel de Preguntas'
-    conf = {
-        'static_url_prefix': '/alternatives/question/',
-        'static_path':
-            './locking_panels/alternatives/question/static',
-        'js_files': ['alternatives_question.js'],
-        'css_files': ['alternatives_question.css'],
-    }
-
-    def render(self):
-        return self.render_string(
-            '../locking_panels/alternatives/question/'
-            'alternatives_question.html')
+from src.db import Course, User
 
 
-class AlterQuestionWSC(src.wsclass.WSClass):
+class RoomsWSC(src.wsclass.WSClass):
     pass

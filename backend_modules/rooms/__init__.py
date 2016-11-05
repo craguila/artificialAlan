@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# COPYRIGHT (c) 2016 Cristóbal Águila
+# COPYRIGHT (c) 2016 Cristóbal Ganter
 #
 # GNU AFFERO GENERAL PUBLIC LICENSE
 #    Version 3, 19 November 2007
@@ -18,30 +18,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from .wsclass import RoomsWSC  # noqa
+from . import patches            # noqa
 
-from tornado.gen import coroutine
+class RoomIsNotDefined(AttributeError):
+    """Raise when ``room`` is not defined.
 
-import src
-from src.wsclass import subscribe
+    ``course`` should be defined in the current instance of
+    :class:`~controller.MSGHandler`.
 
+    .. automethod:: __init__
+    """
 
-class AlterControlLockingPanel(
-        src.boiler_ui_module.BoilerUIModule):
-    id_ = 'alternatives-control-panel'
-    classes = {'fixed-panel', 'teacher'}
-    conf = {
-        'static_url_prefix': '/alternatives/control/',
-        'static_path':
-            './locking_panels/alternatives/control/static',
-        'js_files': ['alternatives_control.js'],
-        'css_files': ['alternatives_control.css'],
-    }
-
-    def render(self):
-        return self.render_string(
-            '../locking_panels/alternatives/control/'
-            'alternatives_control.html')
-
-
-class AlterControlWSC(src.wsclass.WSClass):
-    pass
+    def __init__(self, *args):
+        """Initialize a new CourseIsNotDefined exception."""
+        super().__init__(
+            'Attempted to use the `course` attribute, but '
+            'the attribute is not assigned.',
+            *args
+        )

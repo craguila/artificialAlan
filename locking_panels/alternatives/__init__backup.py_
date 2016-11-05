@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# COPYRIGHT (c) 2016 Cristóbal Águila
+# COPYRIGHT (c) 2016 Cristóbal Ganter
 #
 # GNU AFFERO GENERAL PUBLIC LICENSE
 #    Version 3, 19 November 2007
@@ -24,30 +24,26 @@ from .control import AlterControlWSC            # noqa
 from .question import AlterQuestionLockingPanel  # noqa
 from .question import AlterQuestionWSC           # noqa
 import src
-from src.db import DBObject, db, NoObjectReturnedFromDB, Course
+from src.db import DBObject, db, NoObjectReturnedFromDB
 from src.exceptions import NotDictError, NotStringError, \
     MissingFieldError
 from src.utils import standard_name
 from src.wsclass import subscribe
 from tornado.gen import coroutine
-from src.utils import standard_name
-import time
+
 class Respuestas(DBObject):
     coll = db.respuestas
 
+    @property
+    def answer(self):
+        return self._data['answer']
+
+
 class alternativesWSC(src.wsclass.WSClass):
     @subscribe('alternatives.launch', 'w')
-    @coroutine
     def launch_alternatives(self, message=None):
         try:
-            id_alt = message['question_data']['wording'].replace(' ', '')[0:40]
-            id_alt = str(time.time()).split('.')[0]+id_alt
-            resp = yield Respuestas.create(id_alt)
-            resp.store_dict({'test_name':message['question_data']['test_name']})
-            resp.store_dict({'wording':message['question_data']['wording']})
-            resp.store_dict({'responses': []})
-            resp.store_dict({'answers': message['question_data']['answers']})
-            message['question_data']['id_alt'] = id_alt;
+            resp = Respuestas.create()
             self.pub_subs['d'].send_message(
                     {
                         'type': 'courseMessage({})'.format(self.handler.course.id),
@@ -57,20 +53,6 @@ class alternativesWSC(src.wsclass.WSClass):
                         }
                     }
                 )
-            db.courses.update(
-                {'_id': self.handler.course.id},
-                {'$set':
-                    {'onconnect':
-                        {
-                            'type': 'alternatives.show',
-                            'id_alt': message['question_data']['id_alt'],
-                            'wording': message['question_data']['wording'],
-                            'answers': message['question_data']['answers'],
-                            'form': message['question_data']['type']
-                        }
-                    }
-                }
-            )
         except:
             raise
 
@@ -80,10 +62,8 @@ class alternativesWSC(src.wsclass.WSClass):
             self.pub_subs['w'].send_message(
                     {
                         'type': 'alternatives.show',
-                        'id_alt': message['content']['question_data']['id_alt'],
                         'wording': message['content']['question_data']['wording'],
-                        'answers': message['content']['question_data']['answers'],
-                        'form': message['content']['question_data']['type']
+                        'answers': message['content']['question_data']['answers']
                     }
                 )
         except:
@@ -101,15 +81,6 @@ class alternativesWSC(src.wsclass.WSClass):
                         }
                     }
                 )
-
-            db.courses.update(
-                {'_id': self.handler.course.id},
-                {'$unset':
-                    {'onconnect':
-                        1
-                    }
-                }
-            )
         except:
             raise
 
@@ -154,77 +125,12 @@ class alternativesWSC(src.wsclass.WSClass):
         except:
             raise
 
-    @subscribe('alternatives.block', 'w')
-    def block_alternatives(self, message=None):
-        try:
-            self.pub_subs['d'].send_message(
-                    {
-                        'type': 'courseMessage({})'.format(self.handler.course.id),
-                        'content': {
-                            'type': 'alternatives.block.students',
-                            'content': message
-                        }
-                    }
-                )
-        except:
-            raise
-
-    @subscribe('alternatives.block.students')
-    def spread_block_alternatives(self, message=None):
-        try:
-            self.pub_subs['w'].send_message(
-                    {
-                            'type': 'alternatives.'+message['content']['action']+'.students'
-                    }
-                )
-        except:
-            raise
-
     @subscribe('alternatives.answer', 'w')
-    @coroutine
     def answer_alternatives(self, message=None):
         try:
-            answer_list = yield Respuestas.get(message['id_alt'])
-            answer_list = answer_list.responses
-            for i in answer_list:
-                if i['user']== self.handler.user.id:
-                    db.respuestas.update(
-                        {'_id': message['id_alt']},
-                        {'$pull':
-                            {'responses':
-                                {'alternative': i['alternative'], 'user':self.handler.user.id}
-                            }
-                        }
-                    )
 
-            db.respuestas.update(
-                {'_id': message['id_alt']},
-                {'$push':
-                    {'responses':
-                        {'alternative': message['alternative'], 'user':self.handler.user.id}
-                    }
-                }
-            )
-
-            #calcular los porcentajes
-            answer_list = yield Respuestas.get(message['id_alt'])
-            percentages = dict()
-            n_alts = answer_list.answers
-            for n in n_alts:
-                percentages[n] = 0
-            for answer in answer_list.responses:
-                alt = answer['alternative']
-                if type(alt) == list:
-                    for a in alt:
-                        percentages[a] +=1
-                else:
-                    percentages[alt] += 1
-            for n in percentages:
-                percentages[n] = round((percentages[n]*100.0)/len(answer_list.responses),1)
-            results = []
-            for i in n_alts: #this should send the dict, but there is no time for this :/
-                results.append(percentages[i])
-
+            #crear el DBObject si no existe y agregar las respuestas
+            #calcular los porcenajes
             self.pub_subs['d'].send_message(
                     {
                         'type': self.handler.course_msg_type,
@@ -232,7 +138,7 @@ class alternativesWSC(src.wsclass.WSClass):
                             'type': 'teacherMessage',
                             'content': {
                                 'type': 'alternatives.update',
-                                'content': results #aqui van los porcentajes
+                                'content': message #aqui van los porcentajes
                             }
                         }
                     }
@@ -246,7 +152,7 @@ class alternativesWSC(src.wsclass.WSClass):
             self.pub_subs['w'].send_message(
                     {
                             'type': 'alternatives.results',
-                            'percentages': message['content']
+                            'percentages': [10,20,30,40]
                     }
                 )
         except:

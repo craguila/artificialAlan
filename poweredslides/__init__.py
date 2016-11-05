@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# COPYRIGHT (c) 2016 Cristóbal Águila
+# COPYRIGHT (c) 2016 Cristóbal Ganter
 #
 # GNU AFFERO GENERAL PUBLIC LICENSE
 #    Version 3, 19 November 2007
@@ -19,29 +19,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from tornado.gen import coroutine
+from controller import app, MSGHandler
+from src.load import load_boiler_ui_modules, load_wsclasses
 
-import src
-from src.wsclass import subscribe
-
-
-class AlterControlLockingPanel(
-        src.boiler_ui_module.BoilerUIModule):
-    id_ = 'alternatives-control-panel'
-    classes = {'fixed-panel', 'teacher'}
-    conf = {
-        'static_url_prefix': '/alternatives/control/',
-        'static_path':
-            './locking_panels/alternatives/control/static',
-        'js_files': ['alternatives_control.js'],
-        'css_files': ['alternatives_control.css'],
-    }
-
-    def render(self):
-        return self.render_string(
-            '../locking_panels/alternatives/control/'
-            'alternatives_control.html')
-
-
-class AlterControlWSC(src.wsclass.WSClass):
-    pass
+load_boiler_ui_modules(__name__, app)
+load_wsclasses(__name__, MSGHandler)

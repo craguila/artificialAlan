@@ -22,7 +22,8 @@ program = run.py
 dir_name = $${PWD\#\#*/}
 
 runenv = . env/bin/activate
-python = $(runenv) && python
+python = $(runenv) && python3
+python3 = $(runenv) && python3
 pip_install = $(runenv) && pip install
 unittest = $(python) -m unittest
 
@@ -87,7 +88,7 @@ virtualenv: | dependencies
 
 env: | dependencies virtualenv
 	cd virtualenv && \
-	python3 virtualenv.py --python=python3 ../env
+	python virtualenv.py --python=python3 ../env
 
 tornado motor oauth2client qrcode: | env
 	$(pip_install) $@
@@ -147,10 +148,10 @@ run: $(run_py_deps) dependencies css js \
      reconnecting-websocket.js tinycolor.js unibabel.js \
 	 normalize.css panels notifications locking_panels \
 	 controls qrmaster
-	$(python) -i $(program)
+	$(python3) -i $(program)
 
 python: dependencies
-	$(python)
+	$(python3)
 
 srun:
 	screen -S $(dir_name) $(MAKE) run
@@ -173,7 +174,7 @@ panels notifications locking_panels controls: coffee-script sass $(bbfoldername)
 	 $(make_iterate_over_d)
 
 testenv: env
-	$(python) -V
+	$(python3) -V
 
 test:
 	$(unittest)
@@ -201,6 +202,7 @@ djswatch:
 	screen -d -m -S $(dir_name)_coffee $(MAKE) jswatch
 
 autodoc: $(run_py_deps) $(qrmaster_py_deps) sphinx
+	$(pip_install) sphinx_rtd_theme 
 	$(runenv) && \
 	dir_name=$(dir_name) && \
 	cd .. && \

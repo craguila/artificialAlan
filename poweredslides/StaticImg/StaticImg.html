@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block body %}
+{{ add_ext_file('css/StaticImg.css') }}
+
+<section class="level1 vflex">
+        <figure>
+            <img src="{{ data }}">
+        </figure>
+</section>
+    
+{% end %}

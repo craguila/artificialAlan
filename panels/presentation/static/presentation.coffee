@@ -50,7 +50,8 @@ presentation_box = document.getElementById 'presentation-box'
 
       else
         throw error
-
+  
+  
 updateFullScreenIcon = () ->
   if document.fullscreenElement or \
       document.mozFullScreenElement

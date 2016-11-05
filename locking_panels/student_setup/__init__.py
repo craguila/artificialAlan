@@ -63,6 +63,10 @@ class StudentSetupWSC(src.wsclass.WSClass):
             self.pub_subs['w'].send_message(
                 {'type': 'studentSetup.course.set.ok'})
 
+            if hasattr(course,'onconnect'):
+                self.pub_subs['w'].send_message(
+                    course.onconnect)
+
         except KeyError:
             if 'course_id' not in message:
                 self.handler.send_malformed_message_error(

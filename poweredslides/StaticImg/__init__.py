@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 
-# COPYRIGHT (c) 2016 Felipe Condon
+# COPYRIGHT (c) 2016 Cristóbal Águila
 #
 # GNU AFFERO GENERAL PUBLIC LICENSE
 #    Version 3, 19 November 2007
@@ -18,28 +18,30 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from tornado.gen import coroutine
+import json
 import src
+from src.db import DBObject, db, NoObjectReturnedFromDB
+from src.exceptions import NotDictError, NotStringError, \
+    MissingFieldError
+from src.utils import standard_name
 from src.wsclass import subscribe
-class AlterQuestionLockingPanel(
-        src.boiler_ui_module.BoilerUIModule):
-    id_ = 'alternatives-question-panel'
-    classes = {'scrolling-panel', 'student'}
-    name = 'Panel de Preguntas'
+from tornado.gen import coroutine
+from src.utils import standard_name
+import time
+
+
+class StaticImg(src.boiler_ui_module.BoilerUIModule):
+    id_ = 'StaticImg'
     conf = {
-        'static_url_prefix': '/alternatives/question/',
-        'static_path':
-            './locking_panels/alternatives/question/static',
-        'js_files': ['alternatives_question.js'],
-        'css_files': ['alternatives_question.css'],
+        'static_url_prefix': '/StaticImg/',
+        'static_path': './poweredslides/StaticImg/static',
+        'css_files': ['StaticImg.css'],
+        'js_files': [],
     }
+    
+    @coroutine
+    def fetch_data(cls,pid):
+      return "/static/uploads/"+pid
 
-    def render(self):
-        return self.render_string(
-            '../locking_panels/alternatives/question/'
-            'alternatives_question.html')
-
-
-class AlterQuestionWSC(src.wsclass.WSClass):
-    pass
+    def render(self,title, data):
+        return self.render_string('../poweredslides/StaticImg/StaticImg.html',src=data)

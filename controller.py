@@ -418,6 +418,22 @@ class MSGHandler(WebSocketHandler):
         except:
             raise
 
+
+class PoweredSlidesHandler(RequestHandler):
+  @coroutine
+  def get(self, ptype, pid):
+    try:
+      if ptype in conf.poweredslides: #this list makes a controled environmet for the next eval
+        poweredClass = eval("poweredslides."+ptype+"."+ptype)
+        data = yield poweredClass.fetch_data(self,pid)
+        self.render('../poweredslides/'+ptype+'/'+ptype+'.html', title=pid, data=data)
+      else:
+        self.write("The "+ptype+" PoweredSlide is not registered")
+    except:
+        raise
+
+
+
 try:
     with open(conf.secrets_file, 'r') as f:
         secrets = json.load(f)
@@ -441,7 +457,8 @@ except FileNotFoundError as e:
 app = Application(
     [('/ws$', MSGHandler),
      ('/{.login_path}$'.format(conf), LoginHandler),
-     ('/([0-9a-z]{5})?$', GUIHandler), ],
+     ('/([0-9a-z]{5})?$', GUIHandler),
+     ('/poweredslides/([^/]*)/([^/]*)$', PoweredSlidesHandler), ],
     debug=conf.debug,
     autoreload=conf.autoreload,
     static_path='./static',
@@ -458,7 +475,7 @@ import backend_modules  # noqa
 import locking_panels   # noqa
 import notifications    # noqa
 import panels           # noqa
-
+import poweredslides    #noqa
 # BoilerUIModules that aren't automatically loaded from
 # a package, must add their handlers to the app.
 for module in app.ui_modules.values():

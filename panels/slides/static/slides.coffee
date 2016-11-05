@@ -15,7 +15,7 @@ display = null
 
 current_slideshow = null
 current_slide = 0
-
+slides_number = 0
 #FUNCTIONS
 
 addButton = (slide_name, slide_id) ->
@@ -32,6 +32,13 @@ loadError = ->
     'Ha ocurrido un error al intentar subir el archivo!'
   )
 
+@addSlide = (newSlide) ->
+  ###
+  Allows to add a new slide in the middle of a presentation
+  ###
+  
+  current_slideshow.slides.splice(current_slide+1,0,newSlide)
+  
 @showSlide = (number, silent=false) ->
   ###
   Show the slide specified by `number`.
@@ -76,8 +83,20 @@ loadError = ->
   </dl>
   ###
   try
-    display.src = current_slideshow.slides[number].url
+
     current_slide = number
+    slides_number = current_slideshow.slides.length
+    slides_assignment = document.querySelector("#slides-assignment")
+    if current_slideshow.slides[current_slide].question?
+      slides_assignment.style.setProperty("display","block")
+    else
+      slides_assignment.style.setProperty("display","none")
+    if current_slideshow.slides[number].poweredslide?
+      module = current_slideshow.slides[number].poweredslide
+      ID = current_slideshow.slides[number].ID
+      display.src = "/poweredslides/"+module+"/"+ID
+    else
+      display.src = current_slideshow.slides[number].url
 
   catch error
     if not current_slideshow?
@@ -151,7 +170,8 @@ loadError = ->
     </dd>
   </dl>
   ###
-  showSlide(current_slide + dn, silent)
+  if 0 <= current_slide + dn < slides_number
+    showSlide(current_slide + dn, silent)
 
 @prevSlide = (silent=false) ->
   ###
@@ -235,6 +255,8 @@ loadError = ->
   ###
   moveSlides(1, silent)
 
+
+
 #SETUP
 
 window.addEventListener 'load', ->
@@ -246,6 +268,8 @@ window.addEventListener 'load', ->
 
   prev_button = document.getElementById 'slides-prev'
   next_button = document.getElementById 'slides-next'
+  assignment_button =
+    document.getElementById 'slides-assignment'
 
   prev_button?.addEventListener 'click', ->
     ws.sendJSON
@@ -254,6 +278,18 @@ window.addEventListener 'load', ->
   next_button?.addEventListener 'click', ->
     ws.sendJSON
       'type': 'slides.next'
+
+  assignment_button?.addEventListener 'click', ->
+    try
+      if current_slideshow.slides[current_slide].question?
+        ws.sendJSON
+          'type': 'alternatives.launch'
+          'question_data':
+            current_slideshow.slides[current_slide].question
+
+    catch error
+      if not current_slideshow?
+        null ##############################################
 
 ws.getMessagePromise('session.start.ok').then ->
   ws.sendJSON
@@ -270,6 +306,10 @@ ws.addMessageListener 'slides.list.get.ok', (message) ->
   hideElements spinner
 
 file_input.addEventListener 'change', ->
+  button = document.getElementById 'slides-new-button'
+  imgup = '<svg width="160px" height="160px" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" class="uil-ring-alt"><rect x="0" y="0" width="100" height="100" fill="none" class="bk"></rect><circle cx="50" cy="50" r="40" stroke="#ffffff" fill="none" stroke-width="10" stroke-linecap="round"></circle><circle cx="50" cy="50" r="40" stroke="#78a4d7" fill="none" stroke-width="6" stroke-linecap="round"><animate attributeName="stroke-dashoffset" dur="4s" repeatCount="indefinite" from="0" to="502"></animate><animate attributeName="stroke-dasharray" dur="4s" repeatCount="indefinite" values="125.5 125.5;1 250;125.5 125.5"></animate></circle></svg>'
+  button.innerHTML = imgup
+  
   file = file_input.files[0]
   fr = new FileReader()
 
@@ -280,13 +320,22 @@ file_input.addEventListener 'change', ->
         'type': 'slides.add'
         'mime': file.type
         'data': Unibabel.bufferToBase64(buffer)
+        'name': file.name
       }
     )
 
   fr.onerror = loadError
   fr.readAsArrayBuffer file
 
+
+
+  
 ws.addMessageListener 'slides.add.ok', (message) ->
+  button = document.getElementById 'slides-new-button'
+  imgok = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+              <path fill="#fff" d="M36 26.4 h-9.6 V36 h-4.8 v-9.6 H12 v-4.8 h9.6 V12 h4.8 v9.6 H36 z"></path>
+           </svg>'
+  button.innerHTML = imgok
   addButton message.name, message._id
 
 ws.addMessageListener 'slides.get.ok', (message) ->
